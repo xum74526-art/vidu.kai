@@ -1,0 +1,6 @@
+{
+  "local-user": {
+    "token_env": "VIDU_ACCOUNT_LOCAL_TOKEN",
+    "region": "global"
+  }
+}

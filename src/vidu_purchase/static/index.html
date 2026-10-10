@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>映伴 · Vidu 视频助手</title>
+  <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/console.css">
+  <script src="/assets/console.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="映伴首页"><img src="/assets/icon.svg" alt="" width="40" height="40"><span>映伴<small>Vidu 视频助手</small></span></a>
+    <span id="service-status" class="service-status">正在连接本机服务</span>
+  </header>
+  <main>
+    <section id="launch-notice" class="notice" hidden>
+      <strong>控制页需要连接到本机服务</strong>
+      <p id="launch-message">请使用启动窗口中的“打开控制页”链接。连接一次后，在当前浏览器继续使用。</p>
+      <details><summary>重新获取入口</summary><code>uv run python -X utf8 scripts/selfhost_local.py link</code></details>
+    </section>
+    <div class="page-title"><h1>把想法，变成视频。</h1><p>描述画面、选好配置。每次生成前，都由你确认积分消耗。</p></div>
+    <div class="workspace">
+      <section class="composer panel" aria-labelledby="create-title">
+        <div class="section-heading"><h2 id="create-title">创作新视频</h2><button id="new-video" class="text-button" type="button" hidden>新建视频</button><span>文生视频</span></div>
+        <form id="video-form">
+          <label for="prompt">你想看到什么画面？</label>
+          <textarea id="prompt" name="prompt" rows="6" maxlength="8000" required placeholder="例如：白色背景下，一盏玻璃台灯缓慢旋转，柔和的光线，镜头逐渐拉近。"></textarea>
+          <div class="form-grid">
+            <label>模型<select id="model"><option value="3.2">Vidu 3.2</option><option value="3.2_a">Vidu 3.2 A</option><option value="3.1">Vidu 3.1</option><option value="3.0">Vidu 3.0</option></select></label>
+            <label>时长<select id="duration"></select></label>
+            <label>画面比例<select id="aspect"><option value="16:9">16:9 横屏</option><option value="9:16">9:16 竖屏</option><option value="1:1">1:1 方形</option><option value="4:3">4:3</option><option value="3:4">3:4</option></select></label>
+            <label>分辨率<select id="resolution"><option value="1080p">1080p</option></select></label>
+          </div>
+          <details class="advanced"><summary>更多配置</summary><div class="form-grid">
+            <label>生成数量<select id="samples"><option value="1">1 条</option><option value="2">2 条</option><option value="3">3 条</option><option value="4">4 条</option></select></label>
+            <label>额度方式<select id="schedule"><option value="auto">自动选择</option><option value="normal">使用积分</option><option value="claw_pass">Claw Pass 权益</option></select></label>
+          </div></details>
+          <div class="form-footer"><p>先保存需求并查询条件，不会直接生成或扣积分。</p><button id="prepare-button" class="primary" type="submit" disabled>保存并检查</button></div>
+        </form>
+      </section>
+      <aside class="sidebar">
+        <section class="account panel" aria-labelledby="account-title">
+          <div class="section-heading"><h2 id="account-title">Vidu 账号</h2><span id="account-badge" class="badge">等待连接</span></div>
+          <div class="balance"><strong id="credits">—</strong><span>可用积分</span></div>
+          <p id="account-message">连接你自己的 Vidu 账号，查看真实额度。</p>
+          <p id="account-link-message" hidden></p>
+          <button id="connect-button" class="secondary wide" type="button" disabled>连接 Vidu 账号</button>
+          <div class="account-actions"><button id="refresh-account" class="text-button" type="button" disabled>刷新额度</button><button id="disconnect-button" class="text-button danger" type="button" hidden>断开账号</button></div>
+          <p class="fineprint">首次连接后，授权保存在本机，之后自动连接。</p>
+        </section>
+        <section class="billing panel" aria-labelledby="billing-title"><h2 id="billing-title">套餐与积分</h2><span id="billing-badge" class="badge neutral">正在检查</span><p id="billing-message">正在检查当前购买能力。</p><div id="browser-session" hidden><p id="browser-message"></p><a id="browser-handoff" target="_blank" rel="noopener noreferrer" hidden>打开官网登录窗口</a><details><summary>本机首次连接</summary><p>在当前项目终端运行以下命令，在打开的专用浏览器中登录 Vidu，并保持窗口打开。</p><code>uv run python -X utf8 scripts/browser_session.py</code><p>之后点击“检查官网登录”。Codex 右侧浏览器的登录不会自动同步到本服务。</p></details><button id="refresh-browser" class="text-button" type="button">检查官网登录</button><button id="website-orders" class="text-button" type="button" hidden>查看官网订单</button></div><button id="plans-button" class="secondary wide" type="button" hidden>查看可用套餐</button><div id="offers"></div><div id="purchase-result" hidden aria-live="polite"><h3 id="purchase-title"></h3><p id="purchase-message"></p><div id="purchase-actions" class="flow-actions"></div></div></section>
+      </aside>
+      <section class="result panel" aria-labelledby="result-title" aria-live="polite">
+        <div class="section-heading"><h2 id="result-title">你的创作进度</h2><button id="refresh-flow" type="button" class="text-button" hidden>刷新状态</button></div>
+        <div id="empty-result"><div class="empty-mark" aria-hidden="true">V</div><h3>先从一个想法开始</h3><p>你的视频需求和后续进度会保留在这里。<br>支付完成后也会先询问你，再继续生成。</p></div>
+        <div id="flow-result" hidden><span id="flow-badge" class="badge"></span><h3 id="flow-title"></h3><p id="flow-message"></p><p id="flow-cost" class="cost" hidden></p><div id="flow-actions" class="flow-actions"></div><div id="media"></div></div>
+      </section>
+    </div>
+    <p id="feedback" role="status" class="feedback" hidden></p>
+    <footer><span>映伴 · 独立开发，非 Vidu 官方出品</span><details><summary>智能体接入</summary><p>同一服务提供 HTTP <code>/v1</code> 与 MCP <code>/mcp</code> 接口，需要用户授权。浏览器控制页只在本机模式开放。</p></details></footer>
+  </main>
+  <dialog id="account-dialog">
+    <div class="dialog-heading"><h2>连接你的 Vidu 账号</h2><button type="button" class="text-button" data-close="account-dialog" aria-label="关闭账号连接">关闭</button></div>
+    <section id="browser-account-connect" hidden aria-label="官网快捷连接">
+      <p>在下方官方操作面板中登录或注册，并确认授权。无需另开网页或复制 Token。</p>
+      <p id="connection-status" role="status">正在检查账号连接…</p>
+      <button id="open-login-browser" type="button" class="secondary wide">在此登录 / 注册 Vidu</button>
+      <p class="fineprint">点击下方按钮，授权映伴读取该账号在官网展示的 Vidu Token，验证后保存到本机系统凭据库，用于查询额度和提交你确认的视频。凭据不会进入聊天；本次连接不生成视频。</p>
+      <button id="authorize-browser-account" type="button" class="primary wide">我已登录，授权并连接</button>
+    </section>
+    <p id="connection-error" class="inline-error" role="alert" hidden></p>
+    <details id="manual-account-connect" class="advanced"><summary>手动授权 / 中国站账号</summary>
+      <form id="account-form"><p class="fineprint">从官网头像菜单获取 Vidu Token，在这里验证并连接。</p><label>账号区域<select id="region"><option value="global">国际站 · vidu.com</option><option value="cn">中国站 · vidu.cn</option></select></label><label for="vidu-token">Vidu Token</label><input id="vidu-token" name="token" type="password" maxlength="2048" autocomplete="off" spellcheck="false" required placeholder="仅在本机连接，不发送到聊天"><p class="fineprint">授权通过 Vidu 接口验证后保存到系统凭据库。连接账号不会提交视频。</p><div class="dialog-footer"><a id="official-account" href="https://www.vidu.com" target="_blank" rel="noopener noreferrer">前往 Vidu 登录 / 注册</a><button id="save-account" class="primary" type="submit">验证并连接</button></div></form>
+    </details>
+  </dialog>
+  <dialog id="official-panel-dialog" aria-label="Vidu 官方操作面板"><div class="dialog-heading"><h2>Vidu 官方操作面板</h2><button id="close-official-panel" type="button" class="text-button">关闭面板</button></div><iframe id="official-panel-frame" title="Vidu 官方操作面板" sandbox="allow-scripts allow-same-origin" referrerpolicy="no-referrer"></iframe></dialog>
+  <dialog id="confirm-dialog"><div class="dialog-heading"><h2 id="confirm-title">确认生成</h2><button type="button" class="text-button" data-close="confirm-dialog" aria-label="关闭确认">关闭</button></div><p id="confirm-description"></p><p id="confirm-detail" class="confirmation-detail"></p><div class="dialog-footer"><button type="button" class="secondary" data-close="confirm-dialog">暂不继续</button><button id="confirm-action" class="primary" type="button">确认</button></div></dialog>
+</body>
+</html>

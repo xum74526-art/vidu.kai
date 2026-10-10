@@ -1,0 +1,8 @@
+{
+  "base_url": "https://billing.example.invalid",
+  "token_env": "VIDU_COMMERCE_PRODUCTION_TOKEN",
+  "account_refs": {
+    "local-user": "replace-with-authorized-vidu-account-reference"
+  },
+  "checkout_hosts": ["checkout.stripe.com"]
+}

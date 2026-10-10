@@ -1,0 +1,1512 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Yingban Self-hosted Agent API",
+    "version": "0.8.2"
+  },
+  "paths": {
+    "/v1/capabilities": {
+      "get": {
+        "operationId": "capabilities",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current state; never implies automatic generation"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Required scope is missing"
+          },
+          "404": {
+            "description": "Record does not belong to this user or is absent"
+          },
+          "409": {
+            "description": "State, revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request input"
+          },
+          "501": {
+            "description": "Real Vidu billing integration not configured"
+          },
+          "502": {
+            "description": "Upstream response cannot be verified"
+          },
+          "503": {
+            "description": "Service unavailable; check the same request"
+          }
+        }
+      }
+    },
+    "/v1/openapi.json": {
+      "get": {
+        "operationId": "openapi",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current state; never implies automatic generation"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Required scope is missing"
+          },
+          "404": {
+            "description": "Record does not belong to this user or is absent"
+          },
+          "409": {
+            "description": "State, revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request input"
+          },
+          "501": {
+            "description": "Real Vidu billing integration not configured"
+          },
+          "502": {
+            "description": "Upstream response cannot be verified"
+          },
+          "503": {
+            "description": "Service unavailable; check the same request"
+          }
+        }
+      }
+    },
+    "/v1/account": {
+      "get": {
+        "operationId": "account",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current state; never implies automatic generation"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Required scope is missing"
+          },
+          "404": {
+            "description": "Record does not belong to this user or is absent"
+          },
+          "409": {
+            "description": "State, revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request input"
+          },
+          "501": {
+            "description": "Real Vidu billing integration not configured"
+          },
+          "502": {
+            "description": "Upstream response cannot be verified"
+          },
+          "503": {
+            "description": "Service unavailable; check the same request"
+          }
+        }
+      }
+    },
+    "/v1/account/connection": {
+      "get": {
+        "operationId": "connection_status",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current state; never implies automatic generation"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Required scope is missing"
+          },
+          "404": {
+            "description": "Record does not belong to this user or is absent"
+          },
+          "409": {
+            "description": "State, revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request input"
+          },
+          "501": {
+            "description": "Real Vidu billing integration not configured"
+          },
+          "502": {
+            "description": "Upstream response cannot be verified"
+          },
+          "503": {
+            "description": "Service unavailable; check the same request"
+          }
+        }
+      },
+      "post": {
+        "operationId": "account_connect",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current state; never implies automatic generation"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Required scope is missing"
+          },
+          "404": {
+            "description": "Record does not belong to this user or is absent"
+          },
+          "409": {
+            "description": "State, revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request input"
+          },
+          "501": {
+            "description": "Real Vidu billing integration not configured"
+          },
+          "502": {
+            "description": "Upstream response cannot be verified"
+          },
+          "503": {
+            "description": "Service unavailable; check the same request"
+          }
+        }
+      }
+    },
+    "/v1/browser-panels": {
+      "post": {
+        "operationId": "panel",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current state; never implies automatic generation"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Required scope is missing"
+          },
+          "404": {
+            "description": "Record does not belong to this user or is absent"
+          },
+          "409": {
+            "description": "State, revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request input"
+          },
+          "501": {
+            "description": "Real Vidu billing integration not configured"
+          },
+          "502": {
+            "description": "Upstream response cannot be verified"
+          },
+          "503": {
+            "description": "Service unavailable; check the same request"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PanelRequest"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/commerce/session": {
+      "get": {
+        "operationId": "commerce_session",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current state; never implies automatic generation"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Required scope is missing"
+          },
+          "404": {
+            "description": "Record does not belong to this user or is absent"
+          },
+          "409": {
+            "description": "State, revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request input"
+          },
+          "501": {
+            "description": "Real Vidu billing integration not configured"
+          },
+          "502": {
+            "description": "Upstream response cannot be verified"
+          },
+          "503": {
+            "description": "Service unavailable; check the same request"
+          }
+        }
+      }
+    },
+    "/v1/commerce/orders": {
+      "get": {
+        "operationId": "website_orders",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current state; never implies automatic generation"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Required scope is missing"
+          },
+          "404": {
+            "description": "Record does not belong to this user or is absent"
+          },
+          "409": {
+            "description": "State, revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request input"
+          },
+          "501": {
+            "description": "Real Vidu billing integration not configured"
+          },
+          "502": {
+            "description": "Upstream response cannot be verified"
+          },
+          "503": {
+            "description": "Service unavailable; check the same request"
+          }
+        }
+      }
+    },
+    "/v1/video-briefs": {
+      "post": {
+        "operationId": "brief",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current state; never implies automatic generation"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Required scope is missing"
+          },
+          "404": {
+            "description": "Record does not belong to this user or is absent"
+          },
+          "409": {
+            "description": "State, revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request input"
+          },
+          "501": {
+            "description": "Real Vidu billing integration not configured"
+          },
+          "502": {
+            "description": "Upstream response cannot be verified"
+          },
+          "503": {
+            "description": "Service unavailable; check the same request"
+          },
+          "201": {
+            "description": "Intent created or existing intent returned"
+          }
+        },
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BriefInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/video-briefs/{brief_id}": {
+      "get": {
+        "operationId": "brief_get",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current state; never implies automatic generation"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Required scope is missing"
+          },
+          "404": {
+            "description": "Record does not belong to this user or is absent"
+          },
+          "409": {
+            "description": "State, revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request input"
+          },
+          "501": {
+            "description": "Real Vidu billing integration not configured"
+          },
+          "502": {
+            "description": "Upstream response cannot be verified"
+          },
+          "503": {
+            "description": "Service unavailable; check the same request"
+          }
+        },
+        "parameters": [
+          {
+            "name": "brief_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "brief_answer",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current state; never implies automatic generation"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Required scope is missing"
+          },
+          "404": {
+            "description": "Record does not belong to this user or is absent"
+          },
+          "409": {
+            "description": "State, revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request input"
+          },
+          "501": {
+            "description": "Real Vidu billing integration not configured"
+          },
+          "502": {
+            "description": "Upstream response cannot be verified"
+          },
+          "503": {
+            "description": "Service unavailable; check the same request"
+          }
+        },
+        "parameters": [
+          {
+            "name": "brief_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BriefAnswers"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/plans": {
+      "get": {
+        "operationId": "plans",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current state; never implies automatic generation"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Required scope is missing"
+          },
+          "404": {
+            "description": "Record does not belong to this user or is absent"
+          },
+          "409": {
+            "description": "State, revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request input"
+          },
+          "501": {
+            "description": "Real Vidu billing integration not configured"
+          },
+          "502": {
+            "description": "Upstream response cannot be verified"
+          },
+          "503": {
+            "description": "Service unavailable; check the same request"
+          }
+        }
+      }
+    },
+    "/v1/purchases": {
+      "post": {
+        "operationId": "purchase",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current state; never implies automatic generation"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Required scope is missing"
+          },
+          "404": {
+            "description": "Record does not belong to this user or is absent"
+          },
+          "409": {
+            "description": "State, revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request input"
+          },
+          "501": {
+            "description": "Real Vidu billing integration not configured"
+          },
+          "502": {
+            "description": "Upstream response cannot be verified"
+          },
+          "503": {
+            "description": "Service unavailable; check the same request"
+          },
+          "201": {
+            "description": "Intent created or existing intent returned"
+          }
+        },
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PurchaseInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/purchases/{purchase_id}": {
+      "get": {
+        "operationId": "purchase_get",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current state; never implies automatic generation"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Required scope is missing"
+          },
+          "404": {
+            "description": "Record does not belong to this user or is absent"
+          },
+          "409": {
+            "description": "State, revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request input"
+          },
+          "501": {
+            "description": "Real Vidu billing integration not configured"
+          },
+          "502": {
+            "description": "Upstream response cannot be verified"
+          },
+          "503": {
+            "description": "Service unavailable; check the same request"
+          }
+        },
+        "parameters": [
+          {
+            "name": "purchase_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/purchases/{purchase_id}/events": {
+      "get": {
+        "operationId": "events",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bounded purchase snapshot stream; reconnect the same ID",
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Required scope is missing"
+          },
+          "404": {
+            "description": "Record does not belong to this user or is absent"
+          },
+          "409": {
+            "description": "State, revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request input"
+          },
+          "501": {
+            "description": "Real Vidu billing integration not configured"
+          },
+          "502": {
+            "description": "Upstream response cannot be verified"
+          },
+          "503": {
+            "description": "Service unavailable; check the same request"
+          }
+        },
+        "parameters": [
+          {
+            "name": "purchase_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/videos": {
+      "post": {
+        "operationId": "video",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current state; never implies automatic generation"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Required scope is missing"
+          },
+          "404": {
+            "description": "Record does not belong to this user or is absent"
+          },
+          "409": {
+            "description": "State, revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request input"
+          },
+          "501": {
+            "description": "Real Vidu billing integration not configured"
+          },
+          "502": {
+            "description": "Upstream response cannot be verified"
+          },
+          "503": {
+            "description": "Service unavailable; check the same request"
+          },
+          "201": {
+            "description": "Intent created or existing intent returned"
+          }
+        },
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 8,
+              "maxLength": 128
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/videos/{workflow_id}": {
+      "get": {
+        "operationId": "video_get",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current state; never implies automatic generation"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Required scope is missing"
+          },
+          "404": {
+            "description": "Record does not belong to this user or is absent"
+          },
+          "409": {
+            "description": "State, revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request input"
+          },
+          "501": {
+            "description": "Real Vidu billing integration not configured"
+          },
+          "502": {
+            "description": "Upstream response cannot be verified"
+          },
+          "503": {
+            "description": "Service unavailable; check the same request"
+          }
+        },
+        "parameters": [
+          {
+            "name": "workflow_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "video_update",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current state; never implies automatic generation"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Required scope is missing"
+          },
+          "404": {
+            "description": "Record does not belong to this user or is absent"
+          },
+          "409": {
+            "description": "State, revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request input"
+          },
+          "501": {
+            "description": "Real Vidu billing integration not configured"
+          },
+          "502": {
+            "description": "Upstream response cannot be verified"
+          },
+          "503": {
+            "description": "Service unavailable; check the same request"
+          }
+        },
+        "parameters": [
+          {
+            "name": "workflow_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoUpdateInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/videos/{workflow_id}/cancel": {
+      "post": {
+        "operationId": "cancel",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current state; never implies automatic generation"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Required scope is missing"
+          },
+          "404": {
+            "description": "Record does not belong to this user or is absent"
+          },
+          "409": {
+            "description": "State, revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request input"
+          },
+          "501": {
+            "description": "Real Vidu billing integration not configured"
+          },
+          "502": {
+            "description": "Upstream response cannot be verified"
+          },
+          "503": {
+            "description": "Service unavailable; check the same request"
+          }
+        },
+        "parameters": [
+          {
+            "name": "workflow_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevisionInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/videos/{workflow_id}/recommend": {
+      "post": {
+        "operationId": "recommend",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current state; never implies automatic generation"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Required scope is missing"
+          },
+          "404": {
+            "description": "Record does not belong to this user or is absent"
+          },
+          "409": {
+            "description": "State, revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request input"
+          },
+          "501": {
+            "description": "Real Vidu billing integration not configured"
+          },
+          "502": {
+            "description": "Upstream response cannot be verified"
+          },
+          "503": {
+            "description": "Service unavailable; check the same request"
+          }
+        },
+        "parameters": [
+          {
+            "name": "workflow_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/videos/{workflow_id}/purchase": {
+      "post": {
+        "operationId": "video_purchase",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current state; never implies automatic generation"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Required scope is missing"
+          },
+          "404": {
+            "description": "Record does not belong to this user or is absent"
+          },
+          "409": {
+            "description": "State, revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request input"
+          },
+          "501": {
+            "description": "Real Vidu billing integration not configured"
+          },
+          "502": {
+            "description": "Upstream response cannot be verified"
+          },
+          "503": {
+            "description": "Service unavailable; check the same request"
+          }
+        },
+        "parameters": [
+          {
+            "name": "workflow_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VideoPurchaseInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/videos/{workflow_id}/confirm": {
+      "post": {
+        "operationId": "confirm",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current state; never implies automatic generation"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "Required scope is missing"
+          },
+          "404": {
+            "description": "Record does not belong to this user or is absent"
+          },
+          "409": {
+            "description": "State, revision or idempotency conflict"
+          },
+          "422": {
+            "description": "Invalid request input"
+          },
+          "501": {
+            "description": "Real Vidu billing integration not configured"
+          },
+          "502": {
+            "description": "Upstream response cannot be verified"
+          },
+          "503": {
+            "description": "Service unavailable; check the same request"
+          }
+        },
+        "parameters": [
+          {
+            "name": "workflow_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmInput"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "PanelRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "purpose": {
+            "default": "account",
+            "enum": [
+              "account",
+              "payment"
+            ],
+            "title": "Purpose",
+            "type": "string"
+          },
+          "purchase_id": {
+            "anyOf": [
+              {
+                "pattern": "^[a-f0-9]{32}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Purchase Id"
+          }
+        },
+        "title": "PanelRequest",
+        "type": "object"
+      },
+      "VideoPreferences": {
+        "additionalProperties": false,
+        "properties": {
+          "model_version": {
+            "anyOf": [
+              {
+                "enum": [
+                  "3.0",
+                  "3.1",
+                  "3.2",
+                  "3.2_a"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Model Version"
+          },
+          "duration": {
+            "anyOf": [
+              {
+                "maximum": 16,
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Duration"
+          },
+          "aspect_ratio": {
+            "anyOf": [
+              {
+                "enum": [
+                  "16:9",
+                  "9:16",
+                  "1:1",
+                  "4:3",
+                  "3:4"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Aspect Ratio"
+          },
+          "resolution": {
+            "anyOf": [
+              {
+                "enum": [
+                  "1080p",
+                  "720p"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Resolution"
+          }
+        },
+        "title": "VideoPreferences",
+        "type": "object"
+      },
+      "BriefInput": {
+        "additionalProperties": false,
+        "properties": {
+          "prompt": {
+            "maxLength": 8000,
+            "minLength": 1,
+            "title": "Prompt",
+            "type": "string"
+          },
+          "preferences": {
+            "$ref": "#/components/schemas/VideoPreferences"
+          },
+          "use_recommended_for": {
+            "items": {
+              "enum": [
+                "model_version",
+                "duration",
+                "aspect_ratio",
+                "resolution"
+              ],
+              "type": "string"
+            },
+            "maxItems": 4,
+            "title": "Use Recommended For",
+            "type": "array"
+          },
+          "intended_use": {
+            "default": "general",
+            "enum": [
+              "general",
+              "vertical_short",
+              "landscape",
+              "square"
+            ],
+            "title": "Intended Use",
+            "type": "string"
+          }
+        },
+        "required": [
+          "prompt"
+        ],
+        "title": "BriefInput",
+        "type": "object"
+      },
+      "BriefAnswers": {
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "minimum": 0,
+            "title": "Revision",
+            "type": "integer"
+          },
+          "preferences": {
+            "$ref": "#/components/schemas/VideoPreferences"
+          },
+          "use_recommended_for": {
+            "items": {
+              "enum": [
+                "model_version",
+                "duration",
+                "aspect_ratio",
+                "resolution"
+              ],
+              "type": "string"
+            },
+            "maxItems": 4,
+            "title": "Use Recommended For",
+            "type": "array"
+          },
+          "intended_use": {
+            "anyOf": [
+              {
+                "enum": [
+                  "general",
+                  "vertical_short",
+                  "landscape",
+                  "square"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Intended Use"
+          }
+        },
+        "required": [
+          "revision"
+        ],
+        "title": "BriefAnswers",
+        "type": "object"
+      },
+      "PurchaseInput": {
+        "additionalProperties": false,
+        "properties": {
+          "quote_id": {
+            "pattern": "^[a-f0-9]{32}$",
+            "title": "Quote Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "quote_id"
+        ],
+        "title": "PurchaseInput",
+        "type": "object"
+      },
+      "ExplicitVideoConfig": {
+        "additionalProperties": false,
+        "description": "Direct hosted calls cannot silently skip the four conversational choices.",
+        "properties": {
+          "prompt": {
+            "maxLength": 8000,
+            "minLength": 1,
+            "title": "Prompt",
+            "type": "string"
+          },
+          "task_type": {
+            "const": "text2video",
+            "default": "text2video",
+            "title": "Task Type",
+            "type": "string"
+          },
+          "model_version": {
+            "enum": [
+              "3.0",
+              "3.1",
+              "3.2",
+              "3.2_a"
+            ],
+            "title": "Model Version",
+            "type": "string"
+          },
+          "duration": {
+            "maximum": 16,
+            "minimum": 1,
+            "title": "Duration",
+            "type": "integer"
+          },
+          "resolution": {
+            "enum": [
+              "1080p",
+              "720p"
+            ],
+            "title": "Resolution",
+            "type": "string"
+          },
+          "aspect_ratio": {
+            "enum": [
+              "16:9",
+              "9:16",
+              "1:1",
+              "4:3",
+              "3:4"
+            ],
+            "title": "Aspect Ratio",
+            "type": "string"
+          },
+          "sample_count": {
+            "default": 1,
+            "maximum": 4,
+            "minimum": 1,
+            "title": "Sample Count",
+            "type": "integer"
+          },
+          "codec": {
+            "default": "h264",
+            "enum": [
+              "h264",
+              "h265"
+            ],
+            "title": "Codec",
+            "type": "string"
+          },
+          "transition": {
+            "anyOf": [
+              {
+                "enum": [
+                  "pro",
+                  "speed"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Transition"
+          },
+          "schedule_mode": {
+            "default": "auto",
+            "enum": [
+              "auto",
+              "normal",
+              "claw_pass"
+            ],
+            "title": "Schedule Mode",
+            "type": "string"
+          }
+        },
+        "required": [
+          "prompt",
+          "model_version",
+          "duration",
+          "resolution",
+          "aspect_ratio"
+        ],
+        "title": "ExplicitVideoConfig",
+        "type": "object"
+      },
+      "VideoInput": {
+        "additionalProperties": false,
+        "properties": {
+          "config": {
+            "$ref": "#/components/schemas/ExplicitVideoConfig"
+          }
+        },
+        "required": [
+          "config"
+        ],
+        "title": "VideoInput",
+        "type": "object"
+      },
+      "VideoUpdateInput": {
+        "additionalProperties": false,
+        "properties": {
+          "config": {
+            "$ref": "#/components/schemas/ExplicitVideoConfig"
+          },
+          "revision": {
+            "minimum": 0,
+            "title": "Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "config",
+          "revision"
+        ],
+        "title": "VideoUpdateInput",
+        "type": "object"
+      },
+      "RevisionInput": {
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "minimum": 0,
+            "title": "Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "revision"
+        ],
+        "title": "RevisionInput",
+        "type": "object"
+      },
+      "VideoPurchaseInput": {
+        "additionalProperties": false,
+        "properties": {
+          "quote_id": {
+            "pattern": "^[a-f0-9]{32}$",
+            "title": "Quote Id",
+            "type": "string"
+          },
+          "revision": {
+            "minimum": 0,
+            "title": "Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "quote_id",
+          "revision"
+        ],
+        "title": "VideoPurchaseInput",
+        "type": "object"
+      },
+      "ConfirmInput": {
+        "additionalProperties": false,
+        "properties": {
+          "confirmation_id": {
+            "pattern": "^[a-f0-9]{32}$",
+            "title": "Confirmation Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "confirmation_id"
+        ],
+        "title": "ConfirmInput",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

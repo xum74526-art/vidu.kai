@@ -1,0 +1,15 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "yingban-vidu": {
+      "type": "stdio",
+      "command": "uv",
+      "args": ["run", "--frozen", "--no-dev", "--python", "3.12", "--directory", "${PLUGIN_ROOT}/runtime", "-m", "vidu_purchase.desktop"],
+      "cwd": "${PLUGIN_ROOT}/runtime",
+      "env": {
+        "UV_PROJECT_ENVIRONMENT": "${PLUGIN_DATA}/venv",
+        "PYTHONUTF8": "1"
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "yingban-local",
+  "interface": {"displayName": "映伴 · 本机插件"},
+  "plugins": [
+    {
+      "name": "yingban-vidu",
+      "source": {"source": "local", "path": "./plugins/yingban-vidu"},
+      "policy": {"installation": "AVAILABLE", "authentication": "ON_USE"},
+      "category": "Productivity"
+    }
+  ]
+}

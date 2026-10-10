@@ -1,0 +1,24 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "yingban-vidu",
+  "version": "0.3.1",
+  "description": "连接自己的 Vidu 账号，配置文生视频、确认积分费用并查询生成结果。独立开发，非 Vidu 官方出品。",
+  "keywords": ["vidu", "video", "视频", "映伴"],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "映伴 · Vidu 视频",
+        "shortDescription": "使用自己的 Vidu 账号配置、生成和查询视频",
+        "longDescription": "连接自己的 Vidu 官网账号，配置并生成视频。首次调用打开已配置的本机官方登录面板，由用户登录并确认授权，无需手动复制 Token；后续自动连接，生成前确认配置与积分费用。本机版需要配套登录面板服务、uv 与系统凭据库；支持文生视频及任务查询，不提供套餐购买或自动注册。尚未公开上架。独立开发，非 Vidu 官方出品。",
+        "category": "Productivity",
+        "capabilities": ["Read", "Write"],
+        "defaultPrompt": ["连接我的 Vidu 账号", "配置一个 8 秒横屏视频，先告诉我需要多少积分", "查询刚才的视频生成进度"],
+        "brandColor": "#145C50",
+        "brandColorDark": "#92D9B6",
+        "composerIcon": "./assets/icon.png",
+        "logo": "./assets/logo.png"
+      },
+      "onboardingSkill": "./skills/vidu-setup/SKILL.md"
+    }
+  }
+}

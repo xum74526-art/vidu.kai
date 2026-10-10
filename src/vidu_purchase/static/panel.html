@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>映伴 · 官方操作面板</title>
+  <link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/assets/panel.css">
+  <script src="/assets/panel-input.js" defer></script>
+  <script src="/assets/panel.js" defer></script>
+</head>
+<body>
+  <header><div class="identity"><img src="/assets/icon.svg" width="28" height="28" alt="映伴"><div><strong id="panel-title">Vidu 官方操作面板</strong><span id="origin">正在连接专用浏览器</span></div></div><button id="close" type="button">收起面板</button></header>
+  <div class="toolbar"><nav id="tabs" aria-label="官方窗口"></nav><div class="input-actions"><button id="show-keyboard" type="button">输入文字</button><button id="hide-keyboard" type="button" hidden>收起键盘</button><button id="zoom" type="button" aria-pressed="false">放大画面</button></div></div>
+  <p id="status" role="status">正在验证面板入口…</p>
+  <div id="viewport" aria-label="可交互的官方网站画面">
+    <canvas id="screen" width="1280" height="800" tabindex="0" aria-label="Vidu 官方浏览器画面，点击后可以输入或滚动"></canvas>
+    <div id="cover"><strong id="cover-title">正在连接</strong><p id="cover-message">官网画面会显示在这里。</p><button id="retry" type="button" hidden>重试画面连接</button><button id="dismiss-token" type="button" hidden>关闭凭据面板</button></div>
+    <textarea id="keyboard" aria-label="官网键盘输入" autocomplete="off" autocapitalize="off" spellcheck="false"></textarea>
+  </div>
+  <footer>
+    <p id="help">点击操作，滑动翻页。手机输入时先点官网输入框，再点「输入文字」。</p>
+    <div id="authorization" hidden><p>完成登录后，可授权映伴读取官网展示的视频授权并安全保存。授权不会生成视频。</p><button id="authorize" class="primary" type="button">我已登录，授权并连接</button></div>
+    <p id="payment-note" hidden>请在官方支付表单核对金额和续费条款。当前版本尚不能自动核验到账；收起面板不会视为付款成功，也不会生成视频。</p>
+  </footer>
+</body>
+</html>
