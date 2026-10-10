@@ -64,6 +64,15 @@ async def test_status_reuses_redirected_login_page_across_reconnections(attached
     assert page.url == HOME_URL
 
 
+async def test_new_login_route_requires_a_visible_signin_choice(attached_browser):
+    page, _, provider, _, _ = attached_browser
+    page.url, page.handle = "https://www.vidu.com/zh/login?redirect=%2Fhome", None
+    assert (await provider.session_status("alice"))["status"] == "browser_identity_unverified"
+    page.login_choice = True
+    assert (await provider.session_status("alice"))["status"] == "login_required"
+    page.goto.assert_not_awaited()
+
+
 async def test_repeated_catalog_requests_leave_login_in_progress_alone(attached_browser):
     page, _, provider, _, _ = attached_browser
     page.url, page.login = HOME_URL, True

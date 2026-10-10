@@ -19,12 +19,15 @@ SERVICE = "yingban-vidu/desktop"
 class AccountVaults:
     """Per-authenticated-subject bindings; tokens remain in the native secret store."""
 
-    def __init__(self, root: Path, subjects, *, backend=None):
+    def __init__(self, root: Path, subjects, *, backend=None, authenticated_users=False):
         self.root, self.subjects, self.backend = root.resolve(), frozenset(subjects), backend
+        self.authenticated_users = authenticated_users
         self.vaults = {}
 
     def for_owner(self, owner):
-        if owner not in self.subjects:
+        if not isinstance(owner, str) or not owner.strip() or len(owner) > 512:
+            return None
+        if not self.authenticated_users and owner not in self.subjects:
             return None
         if owner not in self.vaults:
             directory = self.root / hashlib.sha256(owner.encode()).hexdigest()

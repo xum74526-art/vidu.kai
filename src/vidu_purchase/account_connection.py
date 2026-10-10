@@ -19,13 +19,13 @@ class AccountConnectionService:
         return bool(
             self.browser is not None and (
                 self.vaults is not None or (
-                    self.vault is not None and "local-user" in self.browser.bindings
+                    self.vault is not None and self.browser.supports_owner("local-user")
                 )
             )
         )
 
     def vault_for(self, owner):
-        if not self.browser or owner not in self.browser.bindings:
+        if not self.browser or not self.browser.supports_owner(owner):
             return None
         if self.vaults:
             return self.vaults.for_owner(owner)

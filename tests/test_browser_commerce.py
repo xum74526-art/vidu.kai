@@ -36,6 +36,7 @@ class VisibleFixture:
         self.url = SUBSCRIPTION_URL
         self.handle = "vidu_ALICE1234"
         self.login = False
+        self.login_choice = False
         self.cards = list(CARDS)
         self.review = False
         self.orders_open = False
@@ -99,6 +100,7 @@ class Locator:
         return {
             "Close login dialog": self.page.login,
             "登录": self.page.login,
+            "使用邮箱注册/登录": self.page.login_choice,
             "订阅": self.page.review,
             "购买记录": self.page.orders_open,
             "包月套餐": True,

@@ -15,6 +15,17 @@ RUNTIME_MODULES = (
     "connection.py",
     "desktop.py",
     "desktop_connection.py",
+    "companion.py",
+    "process_lock.py",
+    "http_limits.py",
+    "browser.py",
+    "browser_pool.py",
+    "browser_account.py",
+    "browser_panel.py",
+    "account_connection.py",
+    "catalog.py",
+    "checkout.py",
+    "console.py",
     "models.py",
     "service.py",
     "store.py",
@@ -26,7 +37,7 @@ RUNTIME_MODULES = (
 )
 RUNTIME_PROJECT = """[project]
 name = "yingban-vidu-runtime"
-version = "0.3.1"
+version = "0.4.0"
 requires-python = ">=3.12,<3.15"
 dependencies = [
   "fastmcp==4.1.0",
@@ -34,6 +45,9 @@ dependencies = [
   "pydantic>=2.11,<3",
   "keyring>=25.7,<26",
   "platformdirs>=4.4,<5",
+  "playwright>=1.55,<2",
+  "starlette>=1.7,<2",
+  "uvicorn>=0.54,<1",
 ]
 
 [build-system]
@@ -62,6 +76,11 @@ def build():
     files.extend(sorted((PLUGIN / "assets").glob("*.png")))
     files.extend(sorted((PLUGIN / "skills").glob("*/SKILL.md")))
     files.extend(package / name for name in RUNTIME_MODULES)
+    for name in ("panel.html", "panel.js", "panel-input.js", "panel.css", "icon.svg"):
+        target = package / "static" / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(ROOT / "src" / "vidu_purchase" / "static" / name, target)
+        files.append(target)
     files.extend([runtime / "pyproject.toml", runtime / "uv.lock"])
     version = json.loads((PLUGIN / "plugin.json").read_text(encoding="utf-8"))["version"]
     output = ROOT / "dist" / f"yingban-vidu-{version}.zip"

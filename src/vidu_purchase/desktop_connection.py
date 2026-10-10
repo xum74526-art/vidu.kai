@@ -40,15 +40,16 @@ def register_official_panel(directory: Path, origin: str, credential_account: st
 
 
 class OfficialConnectionManager:
-    def __init__(self, vault, *, transport=None):
+    def __init__(self, vault, *, transport=None, autostart=False):
         self.vault, self.transport = vault, transport
+        self.autostart = autostart
         self.path = vault.path.parent / CONFIG
 
     @property
     def configured(self):
         return self.path.is_file()
 
-    async def begin(self):
+    def service_connection(self):
         if not self.configured:
             raise DomainError(
                 "official_panel_not_configured",
@@ -72,10 +73,18 @@ class OfficialConnectionManager:
                 "official_panel_configuration_invalid",
                 "官方登录面板配置不可用，请重新启动本机服务。",
             ) from None
+        return origin, credential
+
+    async def begin(self):
+        if self.autostart:
+            from vidu_purchase.companion import ensure_companion
+
+            await ensure_companion(self)
+        origin, credential = self.service_connection()
         revision = self.vault.owner()
         try:
             async with httpx.AsyncClient(
-                timeout=12, trust_env=False, follow_redirects=False, transport=self.transport,
+                timeout=50, trust_env=False, follow_redirects=False, transport=self.transport,
             ) as client:
                 response = await client.post(
                     origin + "/console/desktop-panel",
@@ -92,6 +101,16 @@ class OfficialConnectionManager:
                     "official_panel_account_mismatch",
                     "插件和登录服务的账号存储不一致，请重新启动共享账号的本机服务。",
                 )
+            if response.status_code == 409:
+                code = response.json().get("error", {}).get("code")
+                messages = {
+                    "browser_missing": "请先安装 Edge 或 Chrome，再重新连接插件。",
+                    "browser_start_failed": "官方浏览器启动失败，请检查浏览器安装后重试。",
+                    "browser_capacity": "登录窗口正在使用中，请稍后重新连接。",
+                    "browser_pool_in_use": "登录环境已在另一个服务中使用，请稍后重试。",
+                }
+                if code in messages:
+                    raise DomainError(code, messages[code])
             response.raise_for_status()
             data = response.json()
             url = urlsplit(data["panel_url"])

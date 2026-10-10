@@ -212,6 +212,8 @@ def main():
         sys.argv += ["--browser-bindings", str(args.browser_bindings)]
     elif not args.billing_config and (ROOT / ".local" / "browser-bindings.json").exists():
         sys.argv += ["--browser-bindings", str(ROOT / ".local" / "browser-bindings.json")]
+    elif not args.billing_config:
+        sys.argv += ["--browser-pool-root", str(args.data_dir / "browser-profiles")]
     if args.enable_live_generation and args.read_only:
         parser.error("--enable-live-generation and --read-only cannot be combined")
     if not args.read_only:

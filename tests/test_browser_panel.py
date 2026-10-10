@@ -244,6 +244,15 @@ async def test_sensitive_view_is_never_captured_or_sent_to_model():
         await remote.input(secret)
 
 
+async def test_spinner_pixels_do_not_claim_the_login_page_is_ready():
+    remote = remote_fixture()
+    remote.provider.login_required = AsyncMock(return_value=False)
+    remote.provider.identity = AsyncMock(side_effect=DomainError("loading", "loading"))
+    assert (await remote.frame())["account_stage"] == "loading"
+    remote.provider.login_required.return_value = True
+    assert (await remote.frame())["account_stage"] == "login"
+
+
 @pytest.mark.parametrize("url", [
     "file:///C:/private", "http://127.0.0.1:9222", "https://www.vidu.com.evil.test",
     "https://www.vidu.com@evil.test", "https://www.vidu.com:8443",

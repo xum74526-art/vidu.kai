@@ -50,7 +50,7 @@ class CommerceUnavailable:
 
 def create_desktop_server(data_dir: Path, *, vault=None) -> FastMCP:
     vault = vault or CredentialVault(data_dir)
-    connection = OfficialConnectionManager(vault)
+    connection = OfficialConnectionManager(vault, autostart=True)
     video = WebsiteVideoProvider({}, generation_enabled=True, credentials=vault.credential)
     purchases = PurchaseService(Store(data_dir / "workflows.sqlite3"), CommerceUnavailable())
     workflow = WorkflowService(
@@ -85,10 +85,11 @@ def create_desktop_server(data_dir: Path, *, vault=None) -> FastMCP:
     def vidu_capabilities() -> dict:
         """查询本机真实接口版支持的功能及未接入能力。"""
         return {
-            "version": "0.3.1",
+            "version": "0.4.0",
             "mode": "live",
             "account_authentication": "official_browser_panel_and_os_credential_store",
             "official_browser_panel_configured": connection.configured,
+            "official_browser_panel_autostart": True,
             "manual_token_required": False,
             "text_to_video": True,
             "automatic_registration": False,

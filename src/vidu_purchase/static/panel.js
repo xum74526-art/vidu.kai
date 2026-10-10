@@ -69,7 +69,9 @@ async function poll() {
       if (canvas.height !== frame.height) canvas.height = frame.height;
       context.drawImage(image, 0, 0, canvas.width, canvas.height);
       element("cover").hidden = true; live = true;
-      element("status").textContent = "已连接 · 可以直接操作下方官方网站";
+      element("status").textContent = frame.account_stage === "loading"
+        ? "已连接登录环境，Vidu 官网正在加载…"
+        : "已连接 · 可以直接操作下方官方网站";
     }
   } catch (error) {
     if (version !== generation || stopped) return;

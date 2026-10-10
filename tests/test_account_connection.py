@@ -58,6 +58,8 @@ class AccountPage:
         self.reload = AsyncMock()
 
     def get_by_text(self, name, **_):
+        if name == "使用邮箱注册/登录":
+            return AccountLocator(self, "login")
         assert name == "Vidu Token"
         return AccountLocator(self, "title")
 

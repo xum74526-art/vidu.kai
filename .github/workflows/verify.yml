@@ -1,0 +1,27 @@
+name: Verify installable plugin
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: astral-sh/setup-uv@94527f2e458b27549849d47d273a16bec83a01e9 # v7
+        with:
+          python-version: '3.12'
+      - run: uv sync --locked
+      - run: uv run pytest -q
+      - run: uv run ruff check src tests scripts
+      - run: node --test sdk/yingban-client.test.mjs sdk/yingban-mobile.test.mjs sdk/panel-input.test.mjs
+      - run: uv run python -X utf8 scripts/build_plugin.py
+      - run: git diff --exit-code -- plugins/yingban-vidu/runtime
+      - if: runner.os == 'Windows'
+        run: uv run python -X utf8 scripts/check_plugin.py
+      - run: uv run python -X utf8 scripts/build_selfhost.py

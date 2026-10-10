@@ -50,13 +50,12 @@ const paymentPanel = await vidu.openOfficialPanel("payment", purchase.purchase_i
 
 ## 本机运行
 
-Codex 本机插件 0.3.1 可复用同一服务的官方登录面板。服务使用 `--account-dir <插件账号目录>` 启动后，自动在该账号目录登记本机路由信息；密钥保留在系统凭据库。首次配置后目录选择会保存在本机配置中。插件调用 `/console/desktop-panel` 时核对账号绑定版本，确保面板保存的授权会被当前插件读到；不一致时拒绝连接。
+Codex 本机插件 0.4.0 会按需启动登录助手和独立浏览器，不需要先运行开发服务器。原有服务也可以用 `--account-dir <插件账号目录>` 登记供插件复用。访问密钥保留在系统凭据库；插件调用 `/console/desktop-panel` 时核对账号绑定版本，确保面板保存的授权会被当前插件读到。
 
 本机 stdio 宿主的兼容入口由 `vidu_connect_account` 返回一次性 `connection_url`，宿主浏览器直接打开。它只允许本机地址并且不含 Vidu Token；不要发布或长期保存该临时链接。前文远程 MCP Apps 的 `_meta` 约定不变。更新本机插件后，已有宿主进程需重启加载新工具与技能。
 
 ```powershell
 uv sync --locked
-uv run python -X utf8 scripts/browser_session.py --headless
 uv run python -X utf8 scripts/selfhost_local.py serve
 ```
 
@@ -64,15 +63,15 @@ uv run python -X utf8 scripts/selfhost_local.py serve
 
 ## 多用户部署
 
-先为每个经过验证的 JWT `sub` 分配独立浏览器配置目录和 CDP 端口，并在浏览器映射中绑定。不同用户不能共享配置目录、CDP 端口或 Vidu 账号。CDP 只监听服务器回环地址，公网仅暴露经 HTTPS 代理的应用服务。
+使用自动浏览器池为经过验证的 JWT `sub` 分配独立配置目录和浏览器。不同用户不共享配置目录或 CDP 端口。CDP 只监听服务器回环地址，公网仅暴露经 HTTPS 代理的应用服务。
 
 在已有 JWKS/issuer/audience 配置基础上运行：
 
 ```powershell
-uv run vidu-selfhost --host 127.0.0.1 --port 8787 --public-url https://vidu-service.example --browser-bindings deployment/browser-bindings.json --account-vault-root deployment/account-vaults --panel-origin https://agent.example
+uv run vidu-selfhost --host 127.0.0.1 --port 8787 --public-url https://vidu-service.example --browser-pool-root deployment/browser-profiles --account-vault-root deployment/account-vaults --panel-origin https://agent.example
 ```
 
-`--account-vault-root` 启用按用户隔离的自助绑定，不能同时使用本机控制台或手动 `accounts.json` 映射。目录中仅保存绑定版本；Token 存 Windows Credential Manager、macOS Keychain 或 Linux Secret Service，不能回退到明文。Linux 服务需要配置可用、解锁的 Secret Service。当前尚不包含浏览器集群自动创建、回收或云端密钥管理服务。
+`--account-vault-root` 启用按用户隔离的自助绑定，不能同时使用本机控制台或手动 `accounts.json` 映射。目录中仅保存绑定版本；Token 存 Windows Credential Manager、macOS Keychain 或 Linux Secret Service，不能回退到明文。Linux 服务需要配置可用、解锁的 Secret Service。浏览器池支持单机自动启动、容量限制和闲置回收，不是跨机器集群；部署说明见 [手机端接入](mobile-mcp.md)。
 
 绑定版本改变、浏览器映射改变、授权过期都会拒绝继续使用原面板。用户切换 Vidu 账号前必须结束旧的待确认工作，不能把旧视频配置的扣费确认带到另一个账号。
 
