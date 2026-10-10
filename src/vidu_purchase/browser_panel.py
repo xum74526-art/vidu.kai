@@ -230,6 +230,18 @@ class RemoteBrowser:
         title = self.page.get_by_text("Vidu Token", exact=True)
         return await self.page.get_by_role("dialog").filter(has=title).is_visible()
 
+    async def account_stage(self):
+        if self.session.purpose != "account" or not official_page(self.page.url):
+            return "official_flow"
+        if await self.provider.login_required(self.page):
+            return "login"
+        try:
+            await self.provider.identity(self.page, self.session.binding)
+            return "account"
+        except DomainError:
+            # Receiving pixels (including a site spinner) does not prove readiness.
+            return "loading"
+
     def public_state(self):
         tabs = []
         for key, page in self.pages.items():
@@ -262,6 +274,7 @@ class RemoteBrowser:
             result = self.public_state()
             if await self.token_visible():
                 return {**result, "state": "credential_hidden", "message": "授权凭据画面已隐藏。"}
+            result["account_stage"] = await self.account_stage()
             self.stage = "capturing"
             shot = await self.cdp.send(
                 "Page.captureScreenshot",
@@ -391,6 +404,13 @@ class BrowserPanelService:
         vault = self.connections.vault_for(owner)
         return vault.owner() if vault else None
 
+    def protected_owners(self):
+        # An expired session may still be finishing input while prune waits for
+        # its lock. Keep its browser alive until that session is actually closed.
+        return {saved.owner for saved in self.sessions.values()} | {
+            saved.owner for saved in self.tickets.values() if saved.expires > self.clock()
+        }
+
     async def prune(self):
         for key, saved in list(self.tickets.items()):
             if saved.expires <= self.clock():
@@ -409,8 +429,6 @@ class BrowserPanelService:
 
     async def issue(self, owner, access, body):
         await self.prune()
-        if not self.provider or owner not in self.provider.bindings:
-            raise DomainError("browser_not_bound", "请先为此用户配置独立的官网浏览器。")
         if access is None or not {"vidu:video", "vidu:purchase"}.issubset(access.scopes):
             raise DomainError("insufficient_scope", "缺少账号与购买权限。")
         if (access.subject or access.claims.get("sub")) != owner:
@@ -423,6 +441,13 @@ class BrowserPanelService:
                 raise DomainError("panel_checkout_unavailable", "原订单支付会话未通过核对。")
         if len(self.tickets) >= 128 or sum(s.owner == owner for s in self.tickets.values()) >= 8:
             raise DomainError("panel_limit", "请使用已有面板入口，或稍后重试。")
+        expires = min(self.clock() + 300, access.expires_at or float("inf"))
+        if expires <= self.clock():
+            raise DomainError("panel_expired", "用户授权已过期。")
+        if not self.provider:
+            raise DomainError("browser_not_bound", "当前部署未配置官网登录环境。")
+        # Provision only after authentication, ownership, request and quota checks.
+        await self.provider.ensure_browser(owner)
         expires = min(self.clock() + 300, access.expires_at or float("inf"))
         if expires <= self.clock():
             raise DomainError("panel_expired", "用户授权已过期。")

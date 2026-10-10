@@ -26,7 +26,9 @@ from vidu_purchase.brief import BriefService
 from vidu_purchase.brief_models import BriefAnswers, BriefInput
 from vidu_purchase.browser import ViduBrowserProvider, read_bindings
 from vidu_purchase.browser_panel import BrowserPanelService, PanelRequest
+from vidu_purchase.browser_pool import BrowserPool
 from vidu_purchase.console import LocalConsole, public_routes
+from vidu_purchase.http_limits import BodyLimit, domain_status
 from vidu_purchase.mcp_server import create_server
 from vidu_purchase.models import DomainError, PurchaseState, Record
 from vidu_purchase.remote_plugin import VERSION, installation_routes
@@ -112,22 +114,6 @@ def error_response(code, message, status):
     return JSONResponse({"error": {"code": code, "message": message}}, status, headers=headers)
 
 
-def domain_status(code):
-    if code == "insufficient_scope":
-        return 403
-    if code in {"purchase_not_found", "quote_not_found", "workflow_not_found", "brief_not_found"}:
-        return 404
-    if code == "billing_not_configured":
-        return 501
-    if code in {"invalid_input", "invalid_idempotency_key"}:
-        return 422
-    if code.startswith(("receipt_", "billing_invalid", "billing_upstream", "billing_response")):
-        return 502
-    if code.startswith(("vidu_", "estimate_", "credits_", "quota_")):
-        return 502
-    return 409
-
-
 class ApiGuard:
     """REST auth; MCP uses the same verifier via its own SDK auth middleware."""
 
@@ -183,39 +169,6 @@ class ApiGuard:
             await error_response(
                 "service_unavailable", "无法可靠处理请求，请查询原请求后再决定下一步。", 503
             )(scope, receive, send)
-
-
-class BodyLimit:
-    def __init__(self, app, limit=65536):
-        self.app, self.limit = app, limit
-
-    async def __call__(self, scope, receive, send):
-        if scope["type"] != "http" or scope["method"] not in {"POST", "PATCH", "PUT"}:
-            return await self.app(scope, receive, send)
-        chunks, size = [], 0
-        while True:
-            message = await receive()
-            if message["type"] == "http.disconnect":
-                return
-            chunk = message.get("body", b"")
-            size += len(chunk)
-            if size > self.limit:
-                return await error_response("body_too_large", "请求超过 64 KiB。", 413)(
-                    scope, receive, send
-                )
-            chunks.append(chunk)
-            if not message.get("more_body", False):
-                break
-        body, delivered = b"".join(chunks), False
-
-        async def bounded_receive():
-            nonlocal delivered
-            if not delivered:
-                delivered = True
-                return {"type": "http.request", "body": body, "more_body": False}
-            return await receive()
-
-        await self.app(scope, bounded_receive, send)
 
 
 class AgentApi:
@@ -559,6 +512,7 @@ def create_hosted_app(
         "billing_mode": billing.mode,
         "billing_contract": "yingban-commerce-gateway-v1" if gateway else None,
         "browser_commerce_available": browser,
+        "automatic_user_sessions": bool(browser and billing.pool),
         "website_order_observation_available": browser,
         "supported_browser_checkouts": ["standard_monthly", "premium_monthly"] if browser else [],
         "top_up_checkout_available": False,
@@ -602,6 +556,8 @@ def create_hosted_app(
     panels = BrowserPanelService(
         billing if browser else None, store, connections, public_url, frame_origins=panel_origins,
     )
+    if browser and billing.pool:
+        billing.pool.protected = panels.protected_owners
     capabilities.update(
         official_browser_panel_available=browser,
         official_browser_panel_transport="page_pixels_and_user_input" if browser else None,
@@ -646,6 +602,8 @@ def create_hosted_app(
             while True:
                 await asyncio.sleep(30)
                 await panels.prune()
+                if browser and billing.pool:
+                    await billing.pool.reap()
 
         async with mcp_app.lifespan(application):
             reaper = asyncio.create_task(reap_panels())
@@ -655,6 +613,8 @@ def create_hosted_app(
                 reaper.cancel()
                 await asyncio.gather(reaper, return_exceptions=True)
                 await panels.close()
+                if browser and billing.pool:
+                    await billing.pool.close()
 
     app = Starlette(
         routes=[
@@ -721,6 +681,9 @@ def main():
     commerce = parser.add_mutually_exclusive_group()
     commerce.add_argument("--billing-config", type=Path)
     commerce.add_argument("--browser-bindings", type=Path)
+    commerce.add_argument("--browser-pool-root", type=Path)
+    parser.add_argument("--max-browsers", type=int, default=4)
+    parser.add_argument("--browser-idle-seconds", type=int, default=1800)
     parser.add_argument("--enable-live-generation", action="store_true")
     parser.add_argument("--local-console", action="store_true")
     parser.add_argument("--local-account-dir", type=Path)
@@ -772,6 +735,10 @@ def main():
         if args.local_account_dir and accounts:
             raise ValueError("A shared desktop account cannot use manual account mappings")
         billing = (
+            ViduBrowserProvider({}, pool=BrowserPool(
+                args.browser_pool_root, max_active=args.max_browsers,
+                idle_seconds=args.browser_idle_seconds,
+            )) if args.browser_pool_root else
             ViduBrowserProvider(read_bindings(args.browser_bindings))
             if args.browser_bindings
             else load_billing(args.billing_config)
@@ -788,7 +755,10 @@ def main():
                 )
             # Select only native secret storage, never a plaintext fallback.
             backend = native_keyring()
-            vaults = AccountVaults(args.account_vault_root, billing.bindings, backend=backend)
+            vaults = AccountVaults(
+                args.account_vault_root, billing.bindings, backend=backend,
+                authenticated_users=billing.pool is not None,
+            )
             credentials = vaults.credential
         if args.local_console and not accounts and args.billing_config is None:
             from vidu_purchase.credentials import CredentialVault
@@ -797,6 +767,9 @@ def main():
 
             def credentials(owner):
                 return vault.credential(vault.owner()) if owner == "local-user" else None
+
+        if args.browser_pool_root and vault is None and vaults is None:
+            raise ValueError("Automatic user sessions require per-user native account storage")
 
         if isinstance(billing, HttpCommerceGateway) and not set(
             billing.settings.account_refs

@@ -1,6 +1,6 @@
 # 手机端远程 MCP 与 GitHub 发布
 
-适用版本：映伴自建服务 0.8.2。面向已经安装在手机上、支持远程 MCP 的自研智能体 App。
+适用版本：映伴自建服务 0.9.0。面向已经安装在手机上、支持远程 MCP 的自研智能体 App。
 
 GitHub 可以承载源码、文档和 Release 下载，但不能把这个 Python MCP 服务当作常驻应用运行。GitHub Pages 只适合静态介绍页。手机不安装 Codex 的本机 stdio 包，也不连接开发电脑的 `127.0.0.1`。
 
@@ -18,7 +18,7 @@ GitHub 可以承载源码、文档和 Release 下载，但不能把这个 Python
 
 ## 运营者先部署服务
 
-准备一个可以运行 Python 3.12、独立 Chromium/Edge 浏览器和原生凭据库的常驻环境。Windows 使用凭据管理器；Linux 需要已解锁、可用的 Secret Service。此版本没有自动创建浏览器的集群管理器，必须先为允许使用的每个 App 用户配置独立浏览器、端口和账号目录。
+准备一个可以运行 Python 3.12、已安装 Edge/Chrome/Chromium 和原生凭据库的常驻环境。Windows 使用凭据管理器；Linux 使用普通系统用户运行服务，并提供已解锁、可用的 Secret Service。开启 `--browser-pool-root` 后，服务验证用户 JWT，再自动为新用户创建独立的浏览器配置目录和账号存储，不需要逐个填写浏览器映射。
 
 App 使用自己的用户身份系统签发/取得访问令牌。公开 MCP 服务验证签名、issuer、audience、有效期和用户 `sub`；不要把共享服务令牌写入插件下载文件或手机安装包。App 的 OAuth 客户端采用授权码与 PKCE，并在现有身份服务登记手机回调；本项目不替你建立身份服务或登记 App。
 
@@ -31,13 +31,16 @@ $env:VIDU_TOKEN_AUDIENCE = 'https://video.example.com/mcp'
 uv sync --locked
 uv run vidu-selfhost --host 127.0.0.1 --port 8787 `
   --public-url https://video.example.com `
-  --browser-bindings deployment/browser-bindings.json `
+  --browser-pool-root deployment/browser-profiles `
+  --max-browsers 4 `
   --account-vault-root deployment/account-vaults `
   --panel-origin https://app.example.com `
   --enable-live-generation
 ```
 
 前置 HTTPS 反向代理把该独立域名转给回环服务，保留 Host，不记录 Authorization、面板票据和用户输入。浏览器调试端口仅在服务器本机监听。不要使用 `selfhost_local.py` 的单用户令牌作为公网手机服务。`--enable-live-generation` 只开启提交能力，每次生成仍需费用确认。
+
+同一个浏览器池目录只允许一个服务进程管理，不使用多 worker 共享目录。默认同时运行 4 个浏览器，闲置 30 分钟后关闭进程并保留登录配置；`--max-browsers` 和 `--browser-idle-seconds` 可调整。活跃面板、未过期入口和正在读取的会话不会被回收，容量满时返回可重试提示。重启后复用用户的专用配置目录，调试端口可变化，账号关联仍使用稳定的会话标识。已有固定映射可继续使用 `--browser-bindings`，与自动浏览器池二选一。
 
 `VIDU_TOKEN_AUDIENCE` 必须等于完整 MCP URL。身份服务还必须提供 OAuth/OIDC 发现和手机客户端所需授权流程；只提供 JWKS 不能完成初次登录。若 App 已有适用于该 MCP audience 的用户令牌，可通过现有 MCP 客户端传入。
 

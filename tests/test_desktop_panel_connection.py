@@ -42,7 +42,7 @@ def bridge(tmp_path):
 
 async def test_plugin_connect_opens_official_panel_without_a_token_form(bridge, monkeypatch):
     app, vault, manager, transport = bridge
-    monkeypatch.setattr(desktop, "OfficialConnectionManager", lambda _vault: manager)
+    monkeypatch.setattr(desktop, "OfficialConnectionManager", lambda _vault, **_kw: manager)
     async with Client(desktop.create_desktop_server(vault.path.parent, vault=vault)) as client:
         result = (await client.call_tool("vidu_connect_account", {})).data
         assert result["connection_mode"] == "official_browser_panel"

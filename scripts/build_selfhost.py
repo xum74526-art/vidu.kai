@@ -14,7 +14,7 @@ from vidu_purchase.store import Store
 from vidu_purchase.video_provider import WebsiteVideoProvider
 
 ROOT = Path(__file__).resolve().parents[1]
-VERSION = "0.8.2"
+VERSION = "0.9.0"
 MODULES = (
     "__init__.py",
     "models.py",
@@ -23,6 +23,9 @@ MODULES = (
     "catalog.py",
     "checkout.py",
     "browser.py",
+    "browser_pool.py",
+    "process_lock.py",
+    "http_limits.py",
     "browser_account.py",
     "browser_panel.py",
     "account_connection.py",
@@ -43,7 +46,7 @@ MODULES = (
 )
 PROJECT = """[project]
 name = "yingban-selfhost"
-version = "0.8.2"
+version = "0.9.0"
 license = "MIT"
 requires-python = ">=3.12,<3.15"
 dependencies = [
@@ -126,7 +129,7 @@ def build():
         files.append(destination)
     (stage / "pyproject.toml").write_text(PROJECT, encoding="utf-8")
     (stage / "README.md").write_text(
-        "# 映伴 · 自建智能体服务 0.8.2\n\n"
+        "# 映伴 · 自建智能体服务 0.9.0\n\n"
         "HTTP/MCP 接口、JavaScript 客户端及图标。使用说明见 [接入文档](docs/selfhost.md)。\n\n"
         "手机智能体通过远程 MCP 连接已部署的 HTTPS 服务，GitHub 下载本身不运行服务。\n"
         "手机安装、授权发现、触屏登录及任务恢复见 [手机接入](docs/mobile-mcp.md)。\n\n"
@@ -135,8 +138,8 @@ def build():
         "标准版、专业版月付可准备真实官方支付页，到账自动核验尚未完成。\n"
         "没有模拟交易模式，也不会自动生成视频。"
         "使用条件见 [浏览器购买](docs/browser-commerce.md)。\n\n"
-        "启动：`uv sync --locked`，`uv run python scripts/browser_session.py --headless`，\n"
-        "再 `uv run python scripts/selfhost_local.py serve`，在控制页的内嵌面板登录。\n"
+        "启动：`uv sync --locked`，`uv run python scripts/selfhost_local.py serve`，\n"
+        "在控制页的内嵌面板登录；新安装会自动创建独立浏览器。\n"
         "另一个终端检查：`uv run python scripts/selfhost_local.py check`。\n",
         encoding="utf-8",
     )

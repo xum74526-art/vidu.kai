@@ -11,7 +11,7 @@ from fastmcp import Client
 from fastmcp.client.transports import StdioTransport
 
 
-async def connect(plugin: Path, report: Path, *, open_only=False):
+async def connect(plugin: Path, report: Path, *, open_only=False, data_dir=None):
     config = json.loads((plugin / "mcp.json").read_text(encoding="utf-8"))
     server = config["mcpServers"]["yingban-vidu"]
 
@@ -22,7 +22,8 @@ async def connect(plugin: Path, report: Path, *, open_only=False):
 
     transport = StdioTransport(
         command=server["command"],
-        args=[resolve(item) for item in server["args"]],
+        args=[resolve(item) for item in server["args"]]
+        + (["--data-dir", str(data_dir.resolve())] if data_dir else []),
         env={key: resolve(value) for key, value in server["env"].items()},
         cwd=resolve(server["cwd"]),
     )
@@ -62,8 +63,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--plugin", type=Path, required=True)
     parser.add_argument("--open-only", action="store_true", help="只打开连接入口，不等待用户登录")
+    parser.add_argument("--data-dir", type=Path, help="验收专用的独立账号目录，不改默认账号")
     parser.add_argument(
         "--report", type=Path, default=Path(".local/live-account-verification.json")
     )
     args = parser.parse_args()
-    asyncio.run(connect(args.plugin.resolve(), args.report.resolve(), open_only=args.open_only))
+    asyncio.run(connect(args.plugin.resolve(), args.report.resolve(),
+                        open_only=args.open_only, data_dir=args.data_dir))

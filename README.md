@@ -2,9 +2,9 @@
 
 开源的 Vidu 视频工作流服务，为自研智能体提供远程 MCP、官网账号连接、积分费用确认、单次提交和生成结果查询。独立开发，非 Vidu 官方插件。
 
-**当前版本：服务 0.8.2 / Codex 本机插件 0.3.1。**
+**当前版本：服务 0.9.0 / Codex 本机插件 0.4.0。**
 
-[下载发布包](https://github.com/xum74526-art/vidu.kai/releases) · [手机 App 接入](docs/mobile-mcp.md) · [HTTP/MCP 服务](docs/selfhost.md) · [登录面板](docs/official-panel.md)
+[下载发布包](https://github.com/xum74526-art/vidu.kai/releases) · [手机 App 接入](docs/mobile-mcp.md) · [HTTP/MCP 服务](docs/selfhost.md) · [登录面板](docs/official-panel.md) · [本机验收](docs/local-acceptance-0.4.0.md)
 
 ## 手机智能体如何使用
 
@@ -18,6 +18,8 @@
 
 - **远程 MCP 与 HTTP**：Streamable HTTP、用户 JWT 验证和标准授权资源发现。
 - **官方登录面板**：每用户独立浏览器，用户自己登录与授权；支持 MCP Apps 或 App 内 WebView。
+- **自动准备会话**：远程部署开启浏览器池后，新用户无需手工分配端口；保留各自登录状态，限制活跃浏览器数量并回收闲置进程。
+- **完整本机插件**：仓库包含运行时、锁定依赖、技能和图标；首次连接自动启动登录助手，无需先开开发服务器。
 - **手机操作**：触屏点击、滑动翻页、软件键盘、中文输入、删除和回车。
 - **费用确认**：查询真实积分和预计消耗，用户确认当前配置后才提交。
 - **任务恢复**：App 切后台、断网后继续查询原 `workflow_id`，不会自动重试生成。
@@ -33,11 +35,10 @@
 git clone https://github.com/xum74526-art/vidu.kai.git
 cd vidu.kai
 uv sync --locked
-uv run python -X utf8 scripts/browser_session.py --headless
 uv run python -X utf8 scripts/selfhost_local.py serve
 ```
 
-按终端输出打开本机面板。这个入口只用于本机体验，不能直接分享给手机。公网部署使用独立的用户身份系统、HTTPS、每用户浏览器和账号存储，详见 [手机部署说明](docs/mobile-mcp.md)。
+按终端输出打开本机面板；新安装会在第一次打开登录面板时自动启动独立浏览器。已有 `browser-bindings.json` 的部署继续复用原浏览器。这个入口只用于本机体验，不能直接分享给手机。公网部署使用独立的用户身份系统、HTTPS、浏览器池和账号存储，详见 [手机部署说明](docs/mobile-mcp.md)。
 
 只有实际用户完成授权后才能查询账号积分。仓库和发布包不含 Vidu Token、账号数据或测试视频；生成需要用户明确确认费用。
 
@@ -64,11 +65,20 @@ node --test sdk/yingban-client.test.mjs sdk/yingban-mobile.test.mjs sdk/panel-in
 uv run python -X utf8 scripts/build_selfhost.py
 ```
 
-0.8.2 已在本机通过 246 项 Python 测试、15 项 JavaScript 测试及 Ruff。测试中的上游响应和浏览器夹具仅用于隔离验证，不作为真实手机、付款或 Vidu 视频生成的验收证据。真实手机 App 和公网部署仍需联调。
+测试中的上游响应和浏览器夹具仅用于隔离验证，不作为真实手机、付款或 Vidu 视频生成的验收证据。真实手机 App 和公网部署仍需联调。
 
-服务构建产物在 `dist/yingban-selfhost-0.8.2.zip`，包含 SHA-256 文件。发布采用允许清单，排除本机数据库、浏览器配置、凭据、日志和测试夹具。
+服务构建产物在 `dist/yingban-selfhost-0.9.0.zip`，包含 SHA-256 文件。发布采用允许清单，排除本机数据库、浏览器配置、凭据、日志和测试夹具。
 
 Codex 本机插件源码位于 [plugins/yingban-vidu](plugins/yingban-vidu)，使用 `scripts/build_plugin.py` 构建。它是单用户 stdio 插件，与手机远程 MCP 的部署方式不同。
+
+仓库版已包含本机插件运行时。在支持自定义插件市场的 Codex 中，从克隆的仓库添加并安装：
+
+```sh
+codex plugin marketplace add <仓库绝对路径>
+codex plugin add yingban-vidu@yingban-local
+```
+
+重启已有对话的插件进程后，说“连接我的 Vidu 账号”即可准备官方面板。机器上需要 `uv`、Edge/Chrome 和原生凭据库。**本机 Codex 包提供登录与视频功能；完整套餐购买流程由自建智能体连接远程 `/mcp` 使用。** 添加自定义市场不等于进入 Codex 公共插件目录。
 
 ## 开源许可
 

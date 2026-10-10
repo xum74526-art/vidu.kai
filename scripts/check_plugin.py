@@ -1,6 +1,7 @@
 """Check package integrity and perform a real stdio handshake without submitting video."""
 
 import argparse
+import ast
 import asyncio
 import json
 import tempfile
@@ -16,6 +17,14 @@ ROOT = Path(__file__).resolve().parents[1]
 async def check(plugin: Path):
     manifest = json.loads((plugin / "plugin.json").read_text(encoding="utf-8"))
     config = json.loads((plugin / "mcp.json").read_text(encoding="utf-8"))
+    package = plugin / "runtime" / "src" / "vidu_purchase"
+    # Catch lazy imports too: a success-only stdio handshake misses error paths.
+    for path in package.glob("*.py"):
+        for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+            if (isinstance(node, ast.ImportFrom)
+                    and (node.module or "").startswith("vidu_purchase.")):
+                dependency = node.module.split(".")[1]
+                assert (package / (dependency + ".py")).is_file(), (path.name, dependency)
     for field in ("composerIcon", "logo"):
         assert (plugin / manifest["extensions"]["com.openai"]["interface"][field]).is_file()
     server = config["mcpServers"]["yingban-vidu"]
@@ -43,12 +52,7 @@ async def check(plugin: Path):
             assert caps["mode"] == "live" and caps["auto_generate"] is False
             assert caps["version"] == manifest["version"]
             assert caps["manual_token_required"] is False
-            try:
-                await client.call_tool("vidu_connect_account", {})
-            except Exception as error:
-                assert "official_panel_not_configured" in str(error)
-            else:
-                raise AssertionError("An unconfigured plugin must not open the legacy token form")
+            assert caps["official_browser_panel_autostart"] is True
             print(
                 json.dumps(
                     {
@@ -66,12 +70,13 @@ async def check(plugin: Path):
         assert "plugin.json" in names and "mcp.json" in names
         assert not any(
             "demo" in name
-            or "browser.py" in name
             or ".local/" in name
             or name.endswith((".db", ".sqlite3", ".env"))
             for name in names
         )
         assert not any("tests/" in name or ".venv/" in name for name in names)
+        assert "runtime/src/vidu_purchase/companion.py" in names
+        assert "runtime/src/vidu_purchase/static/panel.html" in names
         print(json.dumps({"archive": "passed", "files": len(names)}))
 
 

@@ -8,6 +8,7 @@ from pydantic import Field, ValidationError, field_validator
 from starlette.responses import FileResponse, JSONResponse
 from starlette.routing import Route
 
+from vidu_purchase.http_limits import domain_status
 from vidu_purchase.models import DomainError, Record
 from vidu_purchase.video_provider import AccountBinding, WebsiteVideoProvider
 
@@ -238,8 +239,6 @@ class LocalConsole:
             try:
                 return await handler(request)
             except DomainError as error:
-                from vidu_purchase.hosted import domain_status
-
                 status = (
                     401
                     if error.code == "console_login_required"

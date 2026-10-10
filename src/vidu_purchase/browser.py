@@ -32,8 +32,11 @@ class BrowserBinding:
     cdp_url: str
     handoff_url: str | None = None
     expected_account: str | None = None
+    session_id: str | None = None
 
     def __post_init__(self):
+        if self.session_id is not None and not re.fullmatch(r"[a-f0-9]{32}", self.session_id):
+            raise ValueError("Managed browser identity must be an opaque profile identifier")
         url = urlsplit(self.cdp_url)
         if (
             not url.hostname
@@ -110,7 +113,8 @@ def official_page(url):
 def account_reference(owner, binding, label):
     return hashlib.sha256(
         json.dumps(
-            [owner, binding.cdp_url, label], ensure_ascii=False, separators=(",", ":")
+            [owner, binding.session_id or binding.cdp_url, label],
+            ensure_ascii=False, separators=(",", ":")
         ).encode()
     ).hexdigest()
 
@@ -118,9 +122,12 @@ def account_reference(owner, binding, label):
 class ViduBrowserProvider:
     mode = "browser_experimental"
 
-    def __init__(self, bindings: dict[str, BrowserBinding], *, linked_account=None):
+    def __init__(self, bindings: dict[str, BrowserBinding], *, linked_account=None, pool=None):
         validate_bindings(bindings)
-        self.bindings = dict(bindings)
+        if pool is not None and bindings:
+            raise ValueError("Choose managed profiles or explicit browser bindings")
+        self.pool = pool
+        self.bindings = pool.bindings if pool is not None else dict(bindings)
         self.locks: dict[str, asyncio.Lock] = {}
         self.linked_account = linked_account
 
@@ -128,11 +135,33 @@ class ViduBrowserProvider:
     def can_checkout(plan: Plan) -> bool:
         return plan.name in CHECKOUT_PRODUCTS
 
-    @asynccontextmanager
-    async def page(self, owner: str):
+    def supports_owner(self, owner):
+        return self.pool.valid_owner(owner) if self.pool else owner in self.bindings
+
+    async def ensure_browser(self, owner):
+        if self.pool:
+            return await self.pool.ensure(owner)
         binding = self.bindings.get(owner)
         if not binding:
             raise DomainError("browser_not_bound", "还未配置本用户的专用官网浏览器。")
+        return binding
+
+    @asynccontextmanager
+    async def browser_lease(self, owner):
+        if self.pool:
+            async with self.pool.lease(owner) as binding:
+                yield binding
+        else:
+            yield await self.ensure_browser(owner)
+
+    @asynccontextmanager
+    async def page(self, owner: str):
+        async with self.browser_lease(owner) as binding:
+            async with self.bound_page(owner, binding) as value:
+                yield value
+
+    @asynccontextmanager
+    async def bound_page(self, owner, binding):
         async with self.locks.setdefault(owner, asyncio.Lock()):
             async with async_playwright() as playwright:
                 try:
@@ -201,6 +230,9 @@ class ViduBrowserProvider:
         return (
             await page.get_by_role("button", name="Close login dialog", exact=True).is_visible()
             or await page.get_by_role("button", name="登录", exact=True).is_visible()
+            # The current /zh/login page replaces the old modal with sign-in choices.
+            # Require the visible choice: a loading page at /login is not ready yet.
+            or await page.get_by_text("使用邮箱注册/登录", exact=True).is_visible()
         )
 
     @staticmethod
@@ -244,6 +276,11 @@ class ViduBrowserProvider:
             "message": "请由服务端为本用户配置独立浏览器；本机可运行 browser_session.py。",
         }
         if not binding:
+            if self.pool:
+                result.update(
+                    status="not_started", automatic_session=True,
+                    message="打开官方面板时会自动准备本用户的独立登录环境。",
+                )
             return result
         try:
             async with self.page(owner) as (page, binding):

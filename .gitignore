@@ -18,4 +18,3 @@ dist/
 *.egg-info/
 browser-profiles/
 storage-state*.json
-plugins/yingban-vidu/runtime/
